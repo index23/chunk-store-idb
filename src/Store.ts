@@ -29,58 +29,50 @@ export default class Store {
 
     Store.storeCount++
 
-    request.onerror = (event) => {
+    request.onerror = (ev) => {
       // Don't forget to handle errors!
     }
 
-    request.onsuccess = (event: any) => {
-      this.db = event.target.result;
+    request.onsuccess = (ev: any) => {
+      this.db = ev.target.result;
 
       // EventEmmitter.emit('dbOpened')
       this.eventEmitter.notify()
     }
 
-    request.onupgradeneeded = (event: any) => {
+    request.onupgradeneeded = (ev: any) => {
       // Save the IDBDatabase interface
-      this.db = event.target.result;
+      this.db = ev.target.result;
 
       // Create an objectStore for this database
       this.db.createObjectStore('torrent_chunk_store');
     };
   }
 
-  get (index: number, options, cb) {
+  // TODO define cb parameters
+  public get (index: number, options, cb: Function) {
     let self = this
     if (typeof options === 'function') {
       return this.get(index, null, options)
     }
 
-    if (!cb) {
-      cb = () => {}
+    if (typeof cb !== 'function') {
+      cb = (err: Error, ev?: Event): void => {}
     }
 
-    if (!this.db) {
-      // Execute listener
-      this.eventEmitter.subscribe(_get.bind(this, index))
-    } else {
-      return _get(index)
-    }
-
-    function _get (index) {
-      // return new Promise(function (resolve, reject) {
+    this.executeFn(() => {
       let transaction = self.db.transaction('torrent_chunk_store', 'readonly');
       let request = transaction.objectStore('torrent_chunk_store').get(index);
 
-      transaction.onerror = (event) => {
+      transaction.onerror = (ev) => {
         // Don't forget to handle errors!
       }
 
-      request.onsuccess = (event) => {
-        // resolve(event.target)
-        let target = <IDBRequest> event.target
+      this.resolveRequest(request, (err, ev) => {
+        let target = <IDBRequest> ev.target
         if (target.result === undefined) {
           // cb(null, new Buffer(0))
-          this.nextTick(cb, new Error('Try to access non existen index'))
+          this.nextTick(cb, new Error('Try to access non-existent index'))
         } else {
           const buffer = new Buffer(target.result);
           if (!options) {
@@ -90,56 +82,45 @@ export default class Store {
           const length = options.length || (target.result.length - offset)
           cb(null, buffer.slice(offset, offset + length))
         }
-      }
-      // })
-    }
+      })
+    })
   }
 
-  put (index: number, chunkBuffer: Buffer, cb: Function) {
+  // TODO define cb parameters
+  public put (index: number, chunkBuffer: Buffer, cb: (err: Error, ev?: Event) => void) {
     let self = this
 
-    if (!cb) {
-      cb = () => {}
+    if (typeof cb !== 'function') {
+      cb = (err: Error, ev?: Event): void => {}
     }
 
     if (chunkBuffer.length !== this.chunkLength) {
       return this.nextTick(cb, new Error('Chunk length must be: ' + this.chunkLength))
     }
 
-    if (!this.db) {
-      // Execute listener
-      this.eventEmitter.subscribe(_put.bind(this, index, chunkBuffer))
-    } else {
-      _put()
-    }
-
-    function _put () {
+    this.executeFn(() => {
       let transaction = self.db.transaction('torrent_chunk_store', 'readwrite')
 
-      transaction.onerror = (event) => {
+      transaction.onerror = (ev) => {
         // Don't forget to handle errors!
       }
 
       let request = transaction.objectStore('torrent_chunk_store').put(chunkBuffer, index)
 
-      request.onsuccess = (event) => {
-        cb(null, event)
-      }
-
-      request.onerror = (err) => {
-        cb(err)
-      }
-    }
+      this.resolveRequest(request, (err, ev) => {
+        cb(err, ev)
+      })
+    })
   }
 
-  close (cb) {
+  public close (cb) {
     if (this.closed) return this.nextTick(cb, new Error('Storage is closed'));
     if (!this.db) return this.nextTick(cb, undefined)
     this.closed = true;
     this.nextTick(cb, null, null);
   }
 
-  destroy (cb) {
+  public destroy (cb) {
     // Currently same implementation as close
     // For indexeddb would be different:
     // -- Close would empty database
@@ -148,7 +129,7 @@ export default class Store {
     this.idb.deleteDatabase(this.getDatabaseName())
   }
 
-  nextTick (cb, err, val?) {
+  private nextTick (cb, err, val?) {
     setTimeout(function () {
       if (cb) cb(err, val)
     }, 0)
@@ -165,5 +146,23 @@ export default class Store {
     }
 
     return databaseName + '_' + this.currentStoreCount
+  }
+
+  private resolveRequest (request: IDBRequest, cb?: (err: Error, ev?: Event) => void) {
+    request.onsuccess = (ev) => {
+      cb(null, ev)
+    }
+
+    request.onerror = () => {
+      cb(request.error)
+    }
+  }
+
+  private executeFn (cb) {
+    if (!this.db) {
+      this.eventEmitter.subscribe(cb)
+    } else {
+      cb()
+    }
   }
 }
