@@ -11,9 +11,12 @@ export default class Store {
 
   private eventEmitter: EventEmitter;
 
-  // Use to count number of store objects created. Determine database nome
+  // Use to count number of store objects created. Determine database name
   private static storeCount: number = 0
   private readonly currentStoreCount: number = 0
+
+  /** @var {string} osName - Object store name */
+  private readonly osName: string = 'chunks'
 
   constructor (chunkLength: number) {
     this.currentStoreCount = Store.storeCount
@@ -45,7 +48,7 @@ export default class Store {
       this.db = ev.target.result;
 
       // Create an objectStore for this database
-      this.db.createObjectStore('torrent_chunk_store');
+      this.db.createObjectStore(this.osName);
     };
   }
 
@@ -61,8 +64,8 @@ export default class Store {
     }
 
     this.executeFn(() => {
-      let transaction = self.db.transaction('torrent_chunk_store', 'readonly');
-      let request = transaction.objectStore('torrent_chunk_store').get(index);
+      let transaction = this.db.transaction(this.osName, 'readonly');
+      let request = transaction.objectStore(this.osName).get(index);
 
       transaction.onerror = (ev) => {
         // Don't forget to handle errors!
@@ -105,7 +108,7 @@ export default class Store {
         // Don't forget to handle errors!
       }
 
-      let request = transaction.objectStore('torrent_chunk_store').put(chunkBuffer, index)
+      let request = transaction.objectStore(this.osName).put(chunkBuffer, index)
 
       this.resolveRequest(request, (err, ev) => {
         cb(err, ev)
@@ -139,7 +142,7 @@ export default class Store {
    * Get database name based on storeCount
    */
   private getDatabaseName () {
-    const databaseName = 'torrent_chunks'
+    const databaseName = 'torrent_chunk_store'
 
     if (this.currentStoreCount === 0) {
       return databaseName
@@ -148,6 +151,11 @@ export default class Store {
     return databaseName + '_' + this.currentStoreCount
   }
 
+  /**
+   * Resolve IDBRequest.
+   * @param {IDBRequest} request
+   * @param {Function} cb
+   */
   private resolveRequest (request: IDBRequest, cb?: (err: Error, ev?: Event) => void) {
     request.onsuccess = (ev) => {
       cb(null, ev)
@@ -158,6 +166,10 @@ export default class Store {
     }
   }
 
+  /**
+   * Execute IDBRequest depending whether database is opened or not
+   * @param cb
+   */
   private executeFn (cb) {
     if (!this.db) {
       this.eventEmitter.subscribe(cb)
