@@ -1,13 +1,13 @@
 export default class EventEmitter {
-  private subscribers: Array<Function> = []
+  private subscribers: Array<Function> = [];
 
   subscribe (subscriber) {
-    this.subscribers.push(subscriber)
+    this.subscribers.push(subscriber);
   }
 
   notify () {
     this.subscribers.forEach((subscriber) => {
-      subscriber()
+      subscriber();
     })
   }
 }

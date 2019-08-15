@@ -18,17 +18,18 @@ export default class Store {
   /** @var {string} osName - Object store name */
   private readonly osName: string = 'chunks';
 
-  constructor (chunkLength: number) {
+  constructor (chunkLength: number, dbName?: string) {
     this.currentStoreCount = Store.storeCount;
     this.chunkLength = chunkLength;
 
+    // Dependency with EventEmitter because of constructor spec
     this.eventEmitter = new EventEmitter();
 
     // Open indexedDB (torrent_chunks) and
     // create objectStore (torrent_chunk_store)
-    this.idb = window.indexedDB || {}; // || window.mozIndexedDB || window.webkitIndexedDB || window.msIndexedDB;
+    this.idb = window.indexedDB || window.mozIndexedDB || window.webkitIndexedDB || window.msIndexedDB;
 
-    let request = this.idb.open(this.getDatabaseName(), 1);
+    let request = this.idb.open(this.getDatabaseName(dbName), 1);
 
     Store.storeCount++;
 
@@ -52,14 +53,13 @@ export default class Store {
     };
   }
 
-  // TODO define cb parameters
-  public get (index: number, options, cb: Function) {
+  public get (index: number, options, cb: (err: Error, ev?: Buffer) => void) {
     if (typeof options === 'function') {
       return this.get(index, null, options)
     }
 
     if (typeof cb !== 'function') {
-      cb = (err: Error, ev?: Event): void => {}
+      cb = (err: Error, ev?: Buffer): void => {}
     }
 
     this.executeFn(() => {
@@ -88,7 +88,6 @@ export default class Store {
     })
   }
 
-  // TODO define cb parameters
   public put (index: number, chunkBuffer: Buffer, cb: (err: Error, ev?: Event) => void) {
     if (typeof cb !== 'function') {
       cb = (err: Error, ev?: Event): void => {}
@@ -121,8 +120,6 @@ export default class Store {
   }
 
   public destroy (cb) {
-    // Currently same implementation as close
-    // For indexeddb would be different:
     // -- Close would empty database
     // -- Destroy should delete database
     this.close(cb);
@@ -138,8 +135,8 @@ export default class Store {
   /**
    * Get database name based on storeCount
    */
-  private getDatabaseName () {
-    const databaseName = 'torrent_chunk_store';
+  private getDatabaseName (dbName?: string) {
+    const databaseName = dbName || 'torrent_chunk_store';
 
     if (this.currentStoreCount === 0) {
       return databaseName
