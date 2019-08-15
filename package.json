@@ -4,8 +4,6 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "zuul-test": "zuul --local -- test/test.js",
     "build-test": "tsc && browserify test/test.js > test/bundle.js"
   },
   "keywords": [],
@@ -13,8 +11,7 @@
   "license": "ISC",
   "dependencies": {
     "abstract-chunk-store": "^1.4.0",
-    "tape": "^4.9.1",
-    "zuul": "^3.12.0"
+    "tape": "^4.9.1"
   },
   "devDependencies": {
     "browserify": "^16.5.0"
