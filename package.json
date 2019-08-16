@@ -1,7 +1,7 @@
 {
   "name": "indexeddb-chunk-store",
   "version": "0.0.1",
-  "description": "IndexedDB chunk store that is abstract-chunk-store compliant\n",
+  "description": "IndexedDB chunk store that is abstract-chunk-store compliant",
   "main": "dist/Store.js",
   "scripts": {
     "build-test": "tsc && browserify test/test.js > test/bundle.js"
