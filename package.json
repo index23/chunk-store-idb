@@ -1,19 +1,19 @@
 {
-  "name": "chunk-store",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "name": "indexeddb-chunk-store",
+  "version": "0.0.1",
+  "description": "IndexedDB chunk store that is abstract-chunk-store compliant\n",
+  "main": "dist/Store.js",
   "scripts": {
     "build-test": "tsc && browserify test/test.js > test/bundle.js"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "keywords": ["chunk", "store", "indexeddb", "typescript", "abstarct-chunk-store"],
+  "author": "Damjan Bursac <bursacdamjan@gmail.com>",
+  "license": "MIT",
   "dependencies": {
-    "abstract-chunk-store": "^1.4.0",
-    "tape": "^4.9.1"
   },
   "devDependencies": {
-    "browserify": "^16.5.0"
+    "abstract-chunk-store": "^1.4.0",
+    "browserify": "^16.5.0",
+    "tape": "^4.9.1"
   }
 }
