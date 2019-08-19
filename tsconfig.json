@@ -8,7 +8,8 @@
     // if using webpack 2+ or rollup, to leverage tree shaking:
     "module": "commonjs",
     "moduleResolution": "node",
-    "outDir": "dist"
+    "outDir": "dist",
+    "declaration": true
   },
   "include": [
     "src/**/*"
