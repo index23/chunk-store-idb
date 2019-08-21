@@ -5,7 +5,7 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
-    "build-test": "tsc && browserify test/test.js > test/bundle.js"
+    "build-test": "tsc && browserify test/test.js | tape-run --render='tap-spec'"
   },
   "homepage": "https://github.com/index23/chunk-store-idb",
   "repository": {
@@ -29,6 +29,8 @@
     "@types/node": "^12.7.2",
     "abstract-chunk-store": "^1.4.0",
     "browserify": "^16.5.0",
-    "tape": "^4.9.1"
+    "tap-spec": "^5.0.0",
+    "tape": "^4.9.1",
+    "tape-run": "^6.0.1"
   }
 }
