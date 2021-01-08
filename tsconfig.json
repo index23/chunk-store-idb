@@ -6,7 +6,7 @@
     // this enables stricter inference for data properties on `this`
     "strict": false,
     // if using webpack 2+ or rollup, to leverage tree shaking:
-    "module": "commonjs",
+    "module": "umd",
     "moduleResolution": "node",
     "outDir": "dist",
     "declaration": true
