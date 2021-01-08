@@ -5,6 +5,7 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
+    "prepare": "tsc",
     "build-test": "tsc && browserify test/test.js | tape-run --render='tap-spec'"
   },
   "homepage": "https://github.com/index23/chunk-store-idb",
