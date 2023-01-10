@@ -1,10 +1,11 @@
 {
   "name": "chunk-store-idb",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "IndexedDB chunk store that is abstract-chunk-store compatible",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
+    "prepare": "tsc",
     "build-test": "tsc && browserify test/test.js | tape-run --render='tap-spec'"
   },
   "homepage": "https://github.com/index23/chunk-store-idb",
