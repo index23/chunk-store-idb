@@ -1,8 +1,9 @@
 {
   "name": "chunk-store-idb",
-  "version": "0.0.5",
+  "version": "0.0.7",
   "description": "IndexedDB chunk store that is abstract-chunk-store compatible",
   "main": "dist/index.js",
+  "type": "module",
   "types": "dist/index.d.ts",
   "scripts": {
     "prepare": "tsc",

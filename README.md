@@ -19,7 +19,7 @@ yarn add chunk-store-idb
 
 ## Usage
 ``` js 
-import Store from 'chunk-store-idb'
+import  { Store } from 'chunk-store-idb'
 let store = new Store(10)
 ```
 
